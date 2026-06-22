@@ -1,8 +1,11 @@
 package screens;
 
+import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.pagefactory.AndroidFindBy;
+import io.appium.java_client.touch.offset.PointOption;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Rectangle;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 
@@ -27,6 +30,15 @@ public class ContactListScreen extends BaseScreen {
 
     @AndroidFindBy(xpath = "//*[@resource-id='com.sheygam.contactapp:id/rowName']")
     List<WebElement> contactNameList;
+
+    @AndroidFindBy(xpath = "//*[@resource-id = 'com.sheygam.contactapp:id/rowContainer']")
+    List<WebElement> contactList;
+
+    @AndroidFindBy(id = "android:id/button1")
+    WebElement yesBtn;
+
+    int countBefore;
+    int countAfter;
 
 
     public boolean isActivityTitleDisplayed(String text) {
@@ -57,7 +69,7 @@ public class ContactListScreen extends BaseScreen {
     }
 
     public ContactListScreen isContactAddedByName(String name, String lastName) {
-       // List<WebElement> list = driver.findElements(By.xpath("//*[@resource-id='com.sheygam.contactapp:id/rowName]"));
+        // List<WebElement> list = driver.findElements(By.xpath("//*[@resource-id='com.sheygam.contactapp:id/rowName]"));
         isShouldHave(activityTextView, "Contact list", 10);
         System.out.println("size of list " + contactNameList.size());
         boolean isPresent = false;
@@ -70,5 +82,37 @@ public class ContactListScreen extends BaseScreen {
         Assert.assertTrue(isPresent);
         return this;
     }
+
+
+    public ContactListScreen deleteFirstContact() {
+        isActivityTitleDisplayed("Contact list");
+        countBefore = contactList.size();
+        System.out.println(countBefore);
+
+        WebElement first = contactList.get(0);
+        Rectangle rectangle = first.getRect();
+        int xFrom = rectangle.getX() + rectangle.getWidth() / 8;
+        // int xTo = rectangle.getX()+(rectangle.getWidth()/8)*7;
+        int xTo = rectangle.getWidth() - xFrom;
+        int y = rectangle.getY() + rectangle.getHeight() / 2;
+
+        TouchAction<?> touchAction = new TouchAction<>(driver);
+        touchAction.longPress(PointOption.point(xFrom, y))
+                .moveTo(PointOption.point(xTo, y)).release().perform();
+
+        should(yesBtn, 8);
+        yesBtn.click();
+        pause(30);
+        countAfter = contactList.size();
+        System.out.println(countAfter);
+
+        return this;
+    }
+
+    public ContactListScreen isListSizeLessOnOne() {
+        Assert.assertEquals(countBefore - countAfter, 1);
+        return this;
+    }
+
 
 }
