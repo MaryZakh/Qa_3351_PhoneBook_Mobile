@@ -26,6 +26,9 @@ public class AuthenticationScreen extends BaseScreen {
     @AndroidFindBy(id = "com.sheygam.contactapp:id/loginBtn")
     WebElement loginBtn;
 
+    @AndroidFindBy(id = "com.sheygam.contactapp:id/regBtn" )
+    WebElement regBtn;
+
 
     public AuthenticationScreen fillEmail(String email) {
         //pause(4000)
@@ -65,5 +68,10 @@ public class AuthenticationScreen extends BaseScreen {
         Assert.assertTrue(alert.getText().contains(text));
         alert.accept();
         return this;
+    }
+
+    public ContactListScreen submitRegistration() {
+        regBtn.click();
+        return new ContactListScreen(driver);
     }
 }
