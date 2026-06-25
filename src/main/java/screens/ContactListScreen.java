@@ -7,8 +7,13 @@ import io.appium.java_client.touch.offset.PointOption;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Rectangle;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Pause;
+import org.openqa.selenium.interactions.PointerInput;
+import org.openqa.selenium.interactions.Sequence;
 import org.testng.Assert;
 
+import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 
 public class ContactListScreen extends BaseScreen {
@@ -90,15 +95,27 @@ public class ContactListScreen extends BaseScreen {
         System.out.println(countBefore);
 
         WebElement first = contactList.get(0);
+
         Rectangle rectangle = first.getRect();
         int xFrom = rectangle.getX() + rectangle.getWidth() / 8;
         // int xTo = rectangle.getX()+(rectangle.getWidth()/8)*7;
         int xTo = rectangle.getWidth() - xFrom;
         int y = rectangle.getY() + rectangle.getHeight() / 2;
 
-        TouchAction<?> touchAction = new TouchAction<>(driver);
-        touchAction.longPress(PointOption.point(xFrom, y))
-                .moveTo(PointOption.point(xTo, y)).release().perform();
+//        TouchAction<?> touchAction = new TouchAction<>(driver);
+//        touchAction.longPress(PointOption.point(xFrom, y))
+//                .moveTo(PointOption.point(xTo, y)).release().perform();
+
+        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH,"finger");
+        Sequence swipe = new Sequence(finger,1);
+
+        swipe.addAction(finger.createPointerMove(Duration.ZERO,PointerInput.Origin.viewport(),xFrom,y));
+        swipe.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+        swipe.addAction(new Pause(finger,Duration.ofMillis(1000)));
+        swipe.addAction(finger.createPointerMove(Duration.ofMillis(600),PointerInput.Origin.viewport(),xTo,y));
+        swipe.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+        driver.perform(Collections.singletonList(swipe));
 
         should(yesBtn, 8);
         yesBtn.click();
